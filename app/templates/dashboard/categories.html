@@ -1,0 +1,51 @@
+{% extends "dashboard/_layout.html" %}
+{% block title %}分类管理{% endblock %}
+
+{% block dashboard %}
+<div class="dashboard-header">
+    <h2>分类管理</h2>
+</div>
+
+<div class="cat-mgr-grid">
+    <div class="dashboard-card">
+        <h3>添加新分类</h3>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label>{{ form.name.label.text }} <span class="required">*</span></label>
+                {{ form.name(class="form-control") }}
+                {% for err in form.name.errors %}<div class="error-msg">{{ err }}</div>{% endfor %}
+            </div>
+            <div class="form-group">
+                <label>{{ form.description.label.text }}</label>
+                {{ form.description(class="form-control") }}
+            </div>
+            {{ form.submit(class="btn btn-primary btn-block") }}
+        </form>
+    </div>
+
+    <div class="dashboard-card">
+        <h3>已有分类（{{ categories|length }}）</h3>
+        <ul class="cat-mgr-list">
+            {% for c in categories %}
+            <li>
+                <div>
+                    <strong>{{ c.name }}</strong>
+                    <small>{{ c.posts.count() }} 篇文章</small>
+                    <p>{{ c.description or '暂无描述' }}</p>
+                </div>
+                {% if current_user.is_admin %}
+                <form method="post" action="{{ url_for('dashboard.delete_category', cid=c.id) }}"
+                      class="inline-form" onsubmit="return confirm('删除该分类？');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="link-action link-danger"><i class="bi bi-trash"></i></button>
+                </form>
+                {% endif %}
+            </li>
+            {% else %}
+            <li class="empty">暂无分类</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}个人博客{% endblock %} - Personal Blog Bot</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+<nav class="navbar">
+    <div class="container nav-inner">
+        <a class="brand" href="{{ url_for('main.index') }}">
+            <i class="bi bi-feather"></i>
+            <span>Personal Blog</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="菜单">
+            <i class="bi bi-list"></i>
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="{{ url_for('main.index') }}"><i class="bi bi-house"></i> 首页</a></li>
+            <li><a href="{{ url_for('main.about') }}"><i class="bi bi-info-circle"></i> 关于</a></li>
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('dashboard.index') }}"><i class="bi bi-speedometer2"></i> 控制台</a></li>
+                <li><a href="{{ url_for('dashboard.post_create') }}" class="btn-write"><i class="bi bi-pencil-square"></i> 写文章</a></li>
+                <li class="user-menu">
+                    <a href="#" class="user-trigger">
+                        <i class="bi bi-person-circle"></i>
+                        <span>{{ current_user.username }}</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </a>
+                    <ul class="dropdown">
+                        <li><a href="{{ url_for('dashboard.profile') }}"><i class="bi bi-person"></i> 个人资料</a></li>
+                        <li><a href="{{ url_for('dashboard.post_list') }}"><i class="bi bi-journal-text"></i> 我的文章</a></li>
+                        <li><a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> 退出登录</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <li><a href="{{ url_for('auth.login') }}"><i class="bi bi-box-arrow-in-right"></i> 登录</a></li>
+                <li><a href="{{ url_for('auth.register') }}" class="btn-write"><i class="bi bi-person-plus"></i> 注册</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+<div class="flash-container container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">
+                <i class="bi
+                    {% if category == 'success' %}bi-check-circle-fill
+                    {% elif category == 'danger' %}bi-x-circle-fill
+                    {% elif category == 'warning' %}bi-exclamation-triangle-fill
+                    {% else %}bi-info-circle-fill{% endif %}"></i>
+                <span>{{ message }}</span>
+                <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+        {% endfor %}
+    {% endwith %}
+</div>
+
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <h4><i class="bi bi-feather"></i> Personal Blog Bot</h4>
+                <p>记录生活，分享思考。基于 Flask + MySQL 构建。</p>
+            </div>
+            <div>
+                <h4>导航</h4>
+                <ul>
+                    <li><a href="{{ url_for('main.index') }}">首页</a></li>
+                    <li><a href="{{ url_for('main.about') }}">关于</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>技术栈</h4>
+                <ul>
+                    <li>Flask 3.0</li>
+                    <li>MySQL 5.7</li>
+                    <li>SQLAlchemy</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 Personal Blog Bot · Made with <i class="bi bi-heart-fill" style="color: #ff4d6d;"></i>
+        </div>
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

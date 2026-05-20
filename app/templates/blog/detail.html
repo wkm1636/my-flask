@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container post-detail">
+    <article class="post-article">
+        {% if post.cover_image %}
+        <div class="post-hero-cover">
+            <img src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}">
+        </div>
+        {% endif %}
+
+        <header class="post-header">
+            {% if post.category %}
+            <a href="{{ url_for('main.index', category=post.category.id) }}" class="cat-pill">
+                <i class="bi bi-folder"></i> {{ post.category.name }}
+            </a>
+            {% endif %}
+            <h1>{{ post.title }}</h1>
+            <div class="post-info">
+                <span><i class="bi bi-person-circle"></i> {{ post.author.username }}</span>
+                <span><i class="bi bi-calendar3"></i> {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span><i class="bi bi-eye"></i> {{ post.views }} 阅读</span>
+                <span><i class="bi bi-chat-dots"></i> {{ comments|length }} 评论</span>
+                {% if current_user.is_authenticated and current_user.id == post.user_id %}
+                    <a href="{{ url_for('dashboard.post_edit', pid=post.id) }}" class="info-action">
+                        <i class="bi bi-pencil"></i> 编辑
+                    </a>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="post-content markdown-body">
+            {{ post.content | markdown | safe }}
+        </div>
+
+        {% if post.tags %}
+        <div class="post-tags">
+            <i class="bi bi-tags-fill"></i>
+            {% for t in post.tags %}
+                <a href="{{ url_for('main.index', tag=t.id) }}" class="tag-item">{{ t.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </article>
+
+    {% if related %}
+    <section class="related-posts">
+        <h3><i class="bi bi-collection"></i> 相关推荐</h3>
+        <div class="related-grid">
+            {% for r in related %}
+            <a href="{{ url_for('blog.detail', post_id=r.id) }}" class="related-card">
+                <h5>{{ r.title }}</h5>
+                <p>{{ r.summary or '' }}</p>
+                <small><i class="bi bi-calendar3"></i> {{ r.created_at | time_ago }}</small>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="comments-section" id="comments">
+        <h3><i class="bi bi-chat-square-text-fill"></i> 评论 ({{ comments|length }})</h3>
+
+        {% if current_user.is_authenticated %}
+        <form method="post" class="comment-form">
+            {{ form.hidden_tag() }}
+            <div class="comment-input">
+                <div class="user-avatar">{{ current_user.username[0]|upper }}</div>
+                <div class="comment-body">
+                    {{ form.content(class="form-control", rows="3") }}
+                    {% for err in form.content.errors %}<div class="error-msg">{{ err }}</div>{% endfor %}
+                    <div class="comment-actions">
+                        {{ form.submit(class="btn btn-primary btn-sm") }}
+                    </div>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="login-hint">
+            <i class="bi bi-info-circle"></i>
+            请 <a href="{{ url_for('auth.login', next=request.url) }}">登录</a> 后发表评论
+        </div>
+        {% endif %}
+
+        <ul class="comment-list">
+            {% for c in comments %}
+            <li class="comment-item">
+                <div class="user-avatar">{{ c.author.username[0]|upper }}</div>
+                <div class="comment-content">
+                    <div class="comment-head">
+                        <strong>{{ c.author.username }}</strong>
+                        <small>{{ c.created_at | time_ago }}</small>
+                        {% if current_user.is_authenticated and (current_user.id == c.user_id or current_user.is_admin) %}
+                        <form method="post" action="{{ url_for('blog.delete_comment', cid=c.id) }}" class="inline-form"
+                              onsubmit="return confirm('确定删除这条评论？');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="link-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <p>{{ c.content }}</p>
+                </div>
+            </li>
+            {% else %}
+            <li class="empty-comments">还没有评论，来抢沙发吧~</li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+<script>
+    document.querySelectorAll('pre code').forEach((el) => {
+        if (window.hljs) hljs.highlightElement(el);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "dashboard/_layout.html" %}
+{% block title %}{{ mode }}文章{% endblock %}
+
+{% block dashboard %}
+<div class="dashboard-header">
+    <h2>{{ mode }}文章</h2>
+    <a href="{{ url_for('dashboard.post_list') }}" class="btn btn-light">
+        <i class="bi bi-arrow-left"></i> 返回列表
+    </a>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="post-editor">
+    {{ form.hidden_tag() }}
+    <div class="editor-main">
+        <div class="dashboard-card">
+            <div class="form-group">
+                <label>{{ form.title.label.text }} <span class="required">*</span></label>
+                {{ form.title(class="form-control form-control-lg") }}
+                {% for err in form.title.errors %}<div class="error-msg">{{ err }}</div>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.summary.label.text }}</label>
+                {{ form.summary(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.content.label.text }} <span class="required">*</span></label>
+                {{ form.content(class="form-control mono") }}
+                {% for err in form.content.errors %}<div class="error-msg">{{ err }}</div>{% endfor %}
+                <div class="hint">支持 Markdown 语法：**加粗**、`代码`、# 标题、```代码块``` 等</div>
+            </div>
+        </div>
+    </div>
+
+    <aside class="editor-side">
+        <div class="dashboard-card">
+            <h4>发布设置</h4>
+            <div class="form-group">
+                <label class="check-label">
+                    {{ form.is_published() }} <span>立即发布</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label>{{ form.category_id.label.text }}</label>
+                {{ form.category_id(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label>{{ form.tags.label.text }}</label>
+                {{ form.tags(class="form-control") }}
+                <div class="hint">逗号分隔，最多 10 个</div>
+            </div>
+            <div class="form-group">
+                <label>{{ form.cover.label.text }}</label>
+                {{ form.cover(class="form-control") }}
+                {% if post and post.cover_image %}
+                <div class="cover-preview">
+                    <img src="{{ url_for('static', filename=post.cover_image) }}" alt="cover">
+                    <small>当前封面（上传新图可替换）</small>
+                </div>
+                {% endif %}
+            </div>
+            {{ form.submit(class="btn btn-primary btn-block", value=mode + "文章") }}
+        </div>
+    </aside>
+</form>
+{% endblock %}

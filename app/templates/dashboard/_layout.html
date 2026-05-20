@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container dashboard-wrap">
+    <aside class="dashboard-side">
+        <div class="user-card">
+            <div class="user-avatar-lg">{{ current_user.username[0]|upper }}</div>
+            <h4>{{ current_user.username }}</h4>
+            <p>{{ current_user.bio or '这个人很懒~' }}</p>
+            {% if current_user.is_admin %}<span class="admin-badge">管理员</span>{% endif %}
+        </div>
+        <nav class="dashboard-nav">
+            <a href="{{ url_for('dashboard.index') }}" class="{% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+                <i class="bi bi-speedometer2"></i> 数据概览
+            </a>
+            <a href="{{ url_for('dashboard.post_list') }}" class="{% if 'post_list' in request.endpoint or 'post_edit' in request.endpoint %}active{% endif %}">
+                <i class="bi bi-journals"></i> 文章管理
+            </a>
+            <a href="{{ url_for('dashboard.post_create') }}" class="{% if request.endpoint == 'dashboard.post_create' %}active{% endif %}">
+                <i class="bi bi-pencil-square"></i> 写文章
+            </a>
+            <a href="{{ url_for('dashboard.categories') }}" class="{% if request.endpoint == 'dashboard.categories' %}active{% endif %}">
+                <i class="bi bi-grid-3x3-gap"></i> 分类管理
+            </a>
+            <a href="{{ url_for('dashboard.profile') }}" class="{% if request.endpoint == 'dashboard.profile' %}active{% endif %}">
+                <i class="bi bi-person"></i> 个人资料
+            </a>
+        </nav>
+    </aside>
+    <section class="dashboard-main">
+        {% block dashboard %}{% endblock %}
+    </section>
+</div>
+{% endblock %}

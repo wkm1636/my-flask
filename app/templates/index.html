@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}首页{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero-inner">
+        <div class="hero-text">
+            <h1>欢迎来到 <span class="gradient-text">个人博客</span></h1>
+            <p>记录技术成长，分享生活感悟，与你共赴热爱。</p>
+            <div class="hero-stats">
+                <div><strong>{{ stats.post_count }}</strong><span>篇文章</span></div>
+                <div><strong>{{ stats.category_count }}</strong><span>个分类</span></div>
+                <div><strong>{{ stats.user_count }}</strong><span>位用户</span></div>
+            </div>
+            <form action="{{ url_for('main.index') }}" method="get" class="hero-search">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" value="{{ keyword or '' }}" placeholder="搜索文章标题或摘要...">
+                <button type="submit">搜索</button>
+            </form>
+        </div>
+        <div class="hero-decoration">
+            <div class="float-card card-1"><i class="bi bi-code-slash"></i></div>
+            <div class="float-card card-2"><i class="bi bi-journal-richtext"></i></div>
+            <div class="float-card card-3"><i class="bi bi-lightbulb"></i></div>
+            <div class="float-card card-4"><i class="bi bi-stars"></i></div>
+        </div>
+    </div>
+</section>
+
+<div class="container main-grid">
+    <div class="posts-area">
+        {% if current_category or keyword or current_tag %}
+        <div class="filter-bar">
+            <i class="bi bi-funnel-fill"></i>
+            <span>当前筛选：</span>
+            {% if keyword %}<span class="chip">关键词：{{ keyword }}</span>{% endif %}
+            {% if current_category %}
+                {% for c in categories if c.id == current_category %}
+                    <span class="chip">分类：{{ c.name }}</span>
+                {% endfor %}
+            {% endif %}
+            <a href="{{ url_for('main.index') }}" class="clear-filter">清空筛选 <i class="bi bi-x"></i></a>
+        </div>
+        {% endif %}
+
+        {% if posts %}
+            <div class="post-grid">
+                {% for post in posts %}
+                <article class="post-card">
+                    <a href="{{ url_for('blog.detail', post_id=post.id) }}" class="post-cover">
+                        {% if post.cover_image %}
+                            <img src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}">
+                        {% else %}
+                            <div class="placeholder-cover">
+                                <i class="bi bi-image"></i>
+                            </div>
+                        {% endif %}
+                        {% if post.category %}
+                            <span class="post-tag-badge">{{ post.category.name }}</span>
+                        {% endif %}
+                    </a>
+                    <div class="post-body">
+                        <h3><a href="{{ url_for('blog.detail', post_id=post.id) }}">{{ post.title }}</a></h3>
+                        <p class="post-summary">{{ post.summary or post.content[:120] }}</p>
+                        <div class="post-meta">
+                            <span><i class="bi bi-person"></i> {{ post.author.username }}</span>
+                            <span><i class="bi bi-calendar3"></i> {{ post.created_at | time_ago }}</span>
+                            <span><i class="bi bi-eye"></i> {{ post.views }}</span>
+                            <span><i class="bi bi-chat-dots"></i> {{ post.comments.count() }}</span>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            {% if pagination.pages > 1 %}
+            <nav class="pagination">
+                {% if pagination.has_prev %}
+                    <a href="{{ url_for('main.index', page=pagination.prev_num, q=keyword, category=current_category) }}">
+                        <i class="bi bi-chevron-left"></i> 上一页
+                    </a>
+                {% endif %}
+                {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if p %}
+                        <a class="{% if p == pagination.page %}active{% endif %}"
+                           href="{{ url_for('main.index', page=p, q=keyword, category=current_category) }}">{{ p }}</a>
+                    {% else %}
+                        <span class="ellipsis">…</span>
+                    {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                    <a href="{{ url_for('main.index', page=pagination.next_num, q=keyword, category=current_category) }}">
+                        下一页 <i class="bi bi-chevron-right"></i>
+                    </a>
+                {% endif %}
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>暂无文章</p>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard.post_create') }}" class="btn btn-primary">写一篇</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <h4><i class="bi bi-grid-3x3-gap"></i> 文章分类</h4>
+            <ul class="cat-list">
+                {% for cat in categories %}
+                <li>
+                    <a href="{{ url_for('main.index', category=cat.id) }}"
+                       class="{% if current_category == cat.id %}active{% endif %}">
+                        <span>{{ cat.name }}</span>
+                        <span class="count">{{ cat.posts.count() }}</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="empty-mini">暂无分类</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="sidebar-card">
+            <h4><i class="bi bi-fire"></i> 热门文章</h4>
+            <ul class="hot-list">
+                {% for p in hot_posts %}
+                <li>
+                    <span class="num">{{ loop.index }}</span>
+                    <a href="{{ url_for('blog.detail', post_id=p.id) }}">{{ p.title }}</a>
+                </li>
+                {% else %}
+                <li class="empty-mini">暂无数据</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% if tags %}
+        <div class="sidebar-card">
+            <h4><i class="bi bi-tags"></i> 热门标签</h4>
+            <div class="tag-cloud">
+                {% for t in tags %}
+                <a href="{{ url_for('main.index', tag=t.id) }}" class="tag-item">{{ t.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

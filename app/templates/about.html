@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}关于{% endblock %}
+
+{% block content %}
+<div class="container about-page">
+    <div class="about-card">
+        <div class="about-icon">
+            <i class="bi bi-feather"></i>
+        </div>
+        <h1>关于本站</h1>
+        <p class="lead">这是一个基于 Flask 构建的个人博客系统，前后端不分离，使用服务端模板渲染。</p>
+
+        <div class="about-grid">
+            <div class="feature">
+                <i class="bi bi-shield-lock-fill"></i>
+                <h3>用户系统</h3>
+                <p>支持注册、登录、密码加密存储，Flask-Login 会话管理。</p>
+            </div>
+            <div class="feature">
+                <i class="bi bi-pencil-square"></i>
+                <h3>博客管理</h3>
+                <p>支持 Markdown 编辑、分类标签、封面图上传、文章 CRUD。</p>
+            </div>
+            <div class="feature">
+                <i class="bi bi-chat-quote-fill"></i>
+                <h3>评论互动</h3>
+                <p>用户登录后即可对任意文章发表评论。</p>
+            </div>
+            <div class="feature">
+                <i class="bi bi-database-fill-check"></i>
+                <h3>MySQL 5.7</h3>
+                <p>使用 SQLAlchemy ORM + Flask-Migrate 管理数据库。</p>
+            </div>
+            <div class="feature">
+                <i class="bi bi-bezier2"></i>
+                <h3>现代 UI</h3>
+                <p>渐变配色 + 卡片布局 + 响应式设计，桌面/移动端友好。</p>
+            </div>
+            <div class="feature">
+                <i class="bi bi-lock-fill"></i>
+                <h3>安全防护</h3>
+                <p>CSRF 防护、XSS 过滤（bleach）、密码哈希存储。</p>
+            </div>
+        </div>
+
+        <div class="tech-stack">
+            <h2>技术栈</h2>
+            <div class="tech-tags">
+                <span>Flask 3.0</span>
+                <span>SQLAlchemy</span>
+                <span>Flask-Login</span>
+                <span>Flask-WTF</span>
+                <span>Flask-Migrate</span>
+                <span>MySQL 5.7</span>
+                <span>Bootstrap Icons</span>
+                <span>Markdown</span>
+                <span>Bleach</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

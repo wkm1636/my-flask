@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}登录{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-illustration">
+            <div class="illustration-content">
+                <i class="bi bi-shield-lock-fill"></i>
+                <h2>欢迎回来</h2>
+                <p>登录账户，开启你的创作之旅</p>
+                <ul class="benefits">
+                    <li><i class="bi bi-check-circle-fill"></i> 撰写并管理你的博客文章</li>
+                    <li><i class="bi bi-check-circle-fill"></i> 与社区互动，发表评论</li>
+                    <li><i class="bi bi-check-circle-fill"></i> 自定义个人资料</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="auth-form">
+            <h2>登 录</h2>
+            <p class="muted">还没有账号？<a href="{{ url_for('auth.register') }}">立即注册</a></p>
+
+            <form method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label><i class="bi bi-person"></i> {{ form.username.label.text }}</label>
+                    {{ form.username(class="form-control") }}
+                    {% for err in form.username.errors %}<div class="error-msg">{{ err }}</div>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label><i class="bi bi-key"></i> {{ form.password.label.text }}</label>
+                    {{ form.password(class="form-control") }}
+                    {% for err in form.password.errors %}<div class="error-msg">{{ err }}</div>{% endfor %}
+                </div>
+                <div class="form-inline">
+                    <label class="check-label">
+                        {{ form.remember_me() }} <span>记住我</span>
+                    </label>
+                </div>
+                {{ form.submit(class="btn btn-primary btn-block") }}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
